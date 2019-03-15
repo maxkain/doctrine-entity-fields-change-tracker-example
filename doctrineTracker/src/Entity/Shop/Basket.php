@@ -13,7 +13,7 @@ use App\Common\TrackableInterface;
 class Basket implements TrackableInterface
 {
     private static $trackFieldList = [
-        'fio', 'phone', 'email', 'zip', 'sumPayed', 'commentUser', 'commentManager', 'status', 'cancelReason', 'coupon', 'user', 'invoiced'
+        'fio', 'phone', 'email', 'zip', 'commentUser', 'commentManager', 'status', 'cancelReason', 'coupon', 'user', 'invoiced', 'payed'
     ];
     
     /**
@@ -106,35 +106,37 @@ class Basket implements TrackableInterface
     public function onSetTrackData($track)
     {
         $trackFieldName = $track->getFieldName();
-        if ($this->isInvoiced()) {
-            $timeFromInvoice = time() - $this->getInvoicedAt()->getTimestamp();
-        }
-        if (!$this->isInvoiced() || ($timeFromInvoice < 5 && $trackFieldName != 'invoiced') || $track->getAction() == TrackInterface::ACTION_DELETE) {
+        if ($track->getAction() == TrackInterface::ACTION_INSERT && $this->isInvoiced()) {
+            $track->setTitle('Создание заказа');
+        } else if (!$this->isInvoiced() || $track->getAction() == TrackInterface::ACTION_DELETE) {
             return false;
-        } else if ($track->getAction() == TrackInterface::ACTION_INSERT) {
-           $track->setTitle('Создание заказа');
         } else if ($track->getAction() == TrackInterface::ACTION_UPDATE) {
+            $oldValue = $track->getValueOldView();
+            $newValue = $track->getValueNewView();
+            $track->setDescription('«'.$oldValue.'» на «'.$newValue.'»');
             switch ($trackFieldName) {
                 case 'fio': $track->setTitle('Изменение ФИО'); break;
                 case 'phone': $track->setTitle('Изменение телефона'); break;
                 case 'email': $track->setTitle('Изменение E-mail'); break;
                 case 'zip': $track->setTitle('Изменение индекса'); break;
-                case 'sumPayed': $track->setTitle('Изменение оплаченной суммы'); break;
                 case 'commentUser': $track->setTitle('Изменение комментария покупателя'); break;
                 case 'commentManager': $track->setTitle('Изменение комментария менеджера'); break;
-                case 'status': $track->setTitle('Изменение статуса'); break;
+                case 'status':
+                    $track->setTitle('Изменение статуса');
+                    $track->setDescription('«'.self::getStatusTitle($oldValue).'» на «'.self::getStatusTitle($newValue).'»');
+                    break;
                 case 'cancelReason': $track->setTitle('Изменение причины отмены'); break;
                 case 'coupon': $track->setTitle('Изменение купона'); break;
                 case 'user': $track->setTitle('Изменение покупателя'); break;
-                case 'invoiced': $track->setTitle('Создание заказа'); break;
+                case 'invoiced':
+                    $track->setTitle('Создание заказа');
+                    $track->setDescription('');
+                    break;
+                case 'payed':
+                    $track->setTitle('Оплата заказа');
+                    $track->setDescription($newValue ? 'Да' : 'Нет');
+                break;
                 default: $track->setTitle('Изменение поля «'.$trackFieldName.'»');
-            }
-            if ($trackFieldName == 'status') {
-                $track->setDescription('«'.self::getStatusTitle($track->getValueOldView()).'» на «'.self::getStatusTitle($track->getValueNewView()).'»');                
-            } else if ($trackFieldName == 'invoiced') {
-                $track->setDescription('');
-            } else {
-                $track->setDescription('«'.$track->getValueOldView().'» на «'.$track->getValueNewView().'»');
             }
         }
         return true;
