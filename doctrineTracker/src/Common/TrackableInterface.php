@@ -7,11 +7,10 @@ namespace App\Common;
  */
 interface TrackableInterface
 {
-    
     /**
-     * @return string Description
+     * @return TrackableInterface
      */
-    public function getTrackEntityShortClass();
+    public function getTrackEntity();
 
     /**
      * @return array

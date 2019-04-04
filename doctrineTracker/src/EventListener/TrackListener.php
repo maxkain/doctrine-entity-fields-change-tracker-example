@@ -12,7 +12,7 @@ class TrackListener
 {
 
     /**
-     * @var TokenStorage 
+     * @var TokenStorageInterface
      */
     private $tokenStorage;
     
@@ -27,20 +27,20 @@ class TrackListener
         $this->tokenStorage = $token;
     }
 
-    private function addTrack($entity, $action, $user, $changeFieldName = null, $changeFieldValues = [], $trackMetaData = null)
+    private function addTrack(TrackableInterface $entity, $action, $user, $changeFieldName = null, $changeFieldValues = [], $trackMetaData = null)
     {
-        $getTrackEntity = 'get'.$entity->getTrackEntityShortClass();
-        $setTrackEntity = 'set'.$entity->getTrackEntityShortClass();
-        $trackEntity = $entity->{$getTrackEntity}();
+        $trackEntity = $entity->getTrackEntity();
         $trackClass = get_class($trackEntity).'Track';
         $uow = $this->em->getUnitOfWork();
         if (!$trackMetaData) {
             $trackMetaData = $this->em->getMetadataFactory()->getMetadataFor($trackClass);
         }
+        /**
+         * @var $track TrackInterface
+         */
         $track = new $trackClass();
-        $track->{$setTrackEntity}($trackEntity);
+        $track->setEntity($entity);
         $track->setAction($action);
-        $track->setAdditionalEntity($entity);
         $track->setUser($user);
         if ($changeFieldName) {
             $track->setFieldName($changeFieldName);
@@ -56,14 +56,10 @@ class TrackListener
         }        
     }
     
-    private function handleEntity($entity, $action, $user)
+    private function handleEntity(TrackableInterface $entity, $action, $user)
     {
-        if (!$entity instanceof TrackableInterface) {
-            return;
-        }
         $uow = $this->em->getUnitOfWork();
-        $getTrackEntity = 'get'.$entity->getTrackEntityShortClass();
-        $trackEntity = $entity->{$getTrackEntity}();
+        $trackEntity = $entity->getTrackEntity();
         if ($trackEntity === null) {
             return;
         }
@@ -101,17 +97,23 @@ class TrackListener
         
         //changed fields of entities
         foreach ($uow->getScheduledEntityUpdates() as $entity) {
-            $this->handleEntity($entity, TrackInterface::ACTION_UPDATE, $user);
+            if ($entity instanceof TrackableInterface) {
+                $this->handleEntity($entity, TrackInterface::ACTION_UPDATE, $user);
+            }
         }
         
         //inserted entities
         foreach ($uow->getScheduledEntityInsertions() as $entity) {
-            $this->handleEntity($entity, TrackInterface::ACTION_INSERT, $user);
+            if ($entity instanceof TrackableInterface) {
+                $this->handleEntity($entity, TrackInterface::ACTION_INSERT, $user);
+            }
         }
 
         //deleted entities
         foreach ($uow->getScheduledEntityDeletions() as $entity) {
-            $this->handleEntity($entity, TrackInterface::ACTION_DELETE, $user);
+            if ($entity instanceof TrackableInterface) {
+                $this->handleEntity($entity, TrackInterface::ACTION_DELETE, $user);
+            }
         }
     }
 

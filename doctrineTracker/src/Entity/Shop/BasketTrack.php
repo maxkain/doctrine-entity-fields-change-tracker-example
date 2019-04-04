@@ -8,7 +8,7 @@ use App\Traits\TrackTrait;
 use App\Entity\Catalog\Product\Product;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\BasketTrackRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\Shop\BasketTrackRepository")
  */
 class BasketTrack implements TrackInterface
 {    
@@ -77,14 +77,15 @@ class BasketTrack implements TrackInterface
     {
         $this->product = $product;
     }
-    
-    public function setAdditionalEntity($entity)
+
+    public function setEntity($entity)
     {
-        if ($entity instanceof BasketItem) {
+        if ($entity instanceof Basket) {
+            $this->basket = $entity;
+        } else if ($entity instanceof BasketItem) {
+            $this->basket = $entity->getBasket();
             $this->product = $entity->getProduct();
-        } else if ($entity instanceof Product) {
-            $this->product = $entity;
         }
     }
-    
+
 }
