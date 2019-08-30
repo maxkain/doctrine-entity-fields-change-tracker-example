@@ -3,8 +3,8 @@
 namespace App\Entity\Shop;
 
 use Doctrine\ORM\Mapping as ORM;
-use App\Common\TrackInterface;
-use App\Traits\TrackTrait;
+use App\Service\EntityTrack\TrackInterface;
+use App\Service\EntityTrack\EntityTrackTrait;
 use App\Entity\Catalog\Product\Product;
 
 /**
@@ -12,7 +12,7 @@ use App\Entity\Catalog\Product\Product;
  */
 class BasketTrack implements TrackInterface
 {    
-    use TrackTrait;
+    use EntityTrackTrait;
     
     /**
      * @ORM\Id()
@@ -40,12 +40,6 @@ class BasketTrack implements TrackInterface
     {
         $this->timestamp = new \DateTime();  
     }
-    
-    public function __toString()
-    {
-        return $this->getTitle();
-    }
-
 
     public function getId()
     {
@@ -87,5 +81,4 @@ class BasketTrack implements TrackInterface
             $this->product = $entity->getProduct();
         }
     }
-
 }

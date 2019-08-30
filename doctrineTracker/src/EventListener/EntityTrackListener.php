@@ -4,13 +4,13 @@ namespace App\EventListener;
 
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\EntityManager;
-use App\Common\TrackInterface;
-use App\Common\TrackableInterface;
+use App\Service\EntityTrack\TrackInterface;
+use App\Service\EntityTrack\TrackableInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use App\Service\EntityTrack\TrackHandlers;
 
-class TrackListener
+class EntityTrackListener
 {
-
     /**
      * @var TokenStorageInterface
      */
@@ -20,24 +20,36 @@ class TrackListener
      * @var EntityManager 
      */
     private $em;
-    
-    
-    function __construct(TokenStorageInterface $token)
+
+    /**
+     * @var TrackHandlers
+     */
+    private $trackHandlers;
+
+
+    public function __construct(TokenStorageInterface $token, TrackHandlers  $trackHandlers)
     {
         $this->tokenStorage = $token;
+        $this->trackHandlers = $trackHandlers;
     }
 
     private function addTrack(TrackableInterface $entity, $action, $user, $changeFieldName = null, $changeFieldValues = [], $trackMetaData = null)
     {
+        $entityName = (new \ReflectionClass($entity))->getShortName();
+        $handler = $this->trackHandlers->get($entityName);
+
+        if ($changeFieldName && !$handler->isUpdateTrackable($changeFieldName, $changeFieldValues[1])) {
+            return false;
+        }
+
         $trackEntity = $entity->getTrackEntity();
         $trackClass = get_class($trackEntity).'Track';
         $uow = $this->em->getUnitOfWork();
         if (!$trackMetaData) {
             $trackMetaData = $this->em->getMetadataFactory()->getMetadataFor($trackClass);
         }
-        /**
-         * @var $track TrackInterface
-         */
+
+        /** @var $track TrackInterface  */
         $track = new $trackClass();
         $track->setEntity($entity);
         $track->setAction($action);
@@ -47,13 +59,14 @@ class TrackListener
             $track->setValueOld($changeFieldValues[0]);
             $track->setValueNew($changeFieldValues[1]);
         }
-        if ($action == TrackInterface::ACTION_DELETE) {
-            $entity->onAddTrackDelete($uow->getScheduledEntityDeletions());
-        }
-        if ($entity->onSetTrackData($track)) {
+
+        if ($handler->handle($track, $entity)) {
             $uow->persist($track);
             $uow->computeChangeSet($trackMetaData, $track);
-        }        
+            return true;
+        }
+
+        return false;
     }
     
     private function handleEntity(TrackableInterface $entity, $action, $user)
@@ -70,14 +83,11 @@ class TrackListener
                 return;
             }
             $trackMetaData = $this->em->getMetadataFactory()->getMetadataFor($trackClass);
-            $changeFieldList = $entity->getTrackFieldList();
             foreach ($changeset as $changeFieldName => $changeFieldValues) {
-                if (in_array($changeFieldName, $changeFieldList)) {
-                    $this->addTrack($entity, $action, $user, $changeFieldName, $changeFieldValues, $trackMetaData);
-                } 
+                $this->addTrack($entity, $action, $user, $changeFieldName, $changeFieldValues, $trackMetaData);
             }
         } else {
-            $this->addTrack($entity, $action, $user);            
+            $this->addTrack($entity, $action, $user);
         }
     }
     

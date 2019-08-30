@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Traits;
+namespace App\Service\EntityTrack;
 
 use App\Entity\User;
+use App\Service\Helper;
 
-
-trait TrackTrait
+trait EntityTrackTrait
 {
-    
     /**
-     * @var smallint
+     * @var int
      * 
      * @ORM\Column(type="smallint")
      */
@@ -43,21 +42,7 @@ trait TrackTrait
      * @ORM\Column(type="text", nullable=true)
      */    
     private $valueNew;
-    
-    /**
-     * @var string 
-     * 
-     * @ORM\Column(type="text", nullable=true)
-     */    
-    private $title;
-    
-    /**
-     * @var string 
-     * 
-     * @ORM\Column(type="text", nullable=true)
-     */    
-    private $description;
-    
+
     /** 
      * @var \DateTime 
      * 
@@ -65,8 +50,18 @@ trait TrackTrait
      */  
     private $timestamp;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="text", nullable=true)
+     */
     private $valueOldView;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(type="text", nullable=true)
+     */
     private $valueNewView;
     
     
@@ -76,7 +71,7 @@ trait TrackTrait
     }
     
     /**
-     * @return User[]|null
+     * @return User|null
      */
     public function getUser()
     {
@@ -104,41 +99,49 @@ trait TrackTrait
     }
     
     /**
-     * @param User[]|null $user
+     * @param User|null $user
      */
     public function setUser($user)
     {
         $this->user = $user;
     }
 
-    public function setValueOld($valueOld)
+    private function toValue($value)
     {
-        if (is_object($valueOld)) {
-            $this->valueOld = $valueOld->getId();
-            if (is_callable([$valueOld, 'getValueForTrack'])) {
-                $this->valueOldView = $valueOld->getValueForTrack();
-            } else {
-                $this->valueOldView = (string) $valueOld;
-            }
+        if (is_object($value)) {
+            return $value->getId();
         } else {
-            $this->valueOld = $valueOld;
-            $this->valueOldView = $valueOld;
+            return $value;
         }
     }
 
-    public function setValueNew($valueNew)
+    private function toValueView($value)
     {
-        if (is_object($valueNew)) {
-            $this->valueNew = $valueNew->getId();
-            if (is_callable([$valueNew, 'getValueForTrack'])) {
-                $this->valueNewView = $valueNew->getValueForTrack();
+        if (is_object($value)) {
+            if (is_callable([$value, 'getValueForTrack'])) {
+                return $value->getValueForTrack();
             } else {
-                $this->valueNewView = (string) $valueNew;
+                return (string) $value;
             }
+        } else if (is_bool($value)) {
+            return $value ? 'Да' : 'Нет';
+        } else if ($value instanceof \DateTime) {
+            return Helper::dateFormat($value, 'long');
         } else {
-            $this->valueNew = $valueNew;
-            $this->valueNewView = $valueNew;
+            return $value;
         }
+    }
+
+    public function setValueOld($value)
+    {
+        $this->valueOld = $this->toValue($value);
+        $this->valueOldView = $this->toValueView($value);
+    }
+
+    public function setValueNew($value)
+    {
+        $this->valueNew = $this->toValue($value);
+        $this->valueNewView = $this->toValueView($value);
     }
     
     public function getValueOldView()
@@ -154,26 +157,6 @@ trait TrackTrait
     public function setTimestamp(\DateTime $timestamp)
     {
         $this->timestamp = $timestamp;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    public function getDescription()
-    {
-        return $this->description;
-    }
-
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    public function setDescription($description)
-    {
-        $this->description = $description;
     }
 
     public function getFieldName()
