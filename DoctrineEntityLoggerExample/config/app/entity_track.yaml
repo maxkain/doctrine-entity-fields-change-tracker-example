@@ -1,0 +1,47 @@
+parameters:
+    entity_track:
+        entity:
+            Basket:
+                new:
+                    title: 'Создание заказа'
+                update:
+                    fio:
+                        title: 'Изменение ФИО'
+                    phone:
+                        title: 'Изменение телефона'
+                    email:
+                        title: 'Изменение E-mail'
+                    zip:
+                        title: 'Изменение индекса'
+                    commentUser:
+                        title: 'Изменение комментария покупателя'
+                    commentManager:
+                        title: 'Изменение комментария менеджера'
+                    status:
+                        title: 'Изменение статуса'
+                    cancelReason:
+                        title: 'Изменение причины отмены'
+                    coupon:
+                        title: 'Изменение купона'
+                    user:
+                        title: 'Изменение покупателя'
+                    invoiced:
+                        values:
+                            1:
+                                title: 'Оформление заказа'
+                    payed:
+                        values:
+                            0:
+                                title: 'Отмена оплаты заказа'
+                            1:
+                                title: 'Оплата заказа'
+            BasketItem:
+                new:
+                    title: 'Добавление товара'
+                delete:
+                    title: 'Удаление товара'
+                update:
+                    count:
+                        title: 'Изменение количества товара'
+                    price:
+                        title: 'Изменение цены товара'
