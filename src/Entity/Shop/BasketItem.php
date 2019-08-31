@@ -36,11 +36,11 @@ class BasketItem implements TrackableInterface
     /* ... */
 
     /**
-     * @return TrackableInterface
+     * @return string
      */
-    public function getTrackEntity()
+    public function getTrackClass()
     {
-        return $this->basket;
+        return get_class($this->basket).'Track';
     }
     
 }

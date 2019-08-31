@@ -9,8 +9,8 @@ namespace App\Service\EntityTrack;
 interface TrackableInterface
 {
     /**
-     * @return TrackableInterface The Entity for tracking. Will be tracked to Entity class with 'Track' suffix
+     * @return string The class of the track entity
      */
-    public function getTrackEntity();
+    public function getTrackClass();
 
 }

@@ -42,8 +42,7 @@ class EntityTrackListener
             return false;
         }
 
-        $trackEntity = $entity->getTrackEntity();
-        $trackClass = get_class($trackEntity).'Track';
+        $trackClass = $entity->getTrackClass();
         $uow = $this->em->getUnitOfWork();
         if (!$trackMetaData) {
             $trackMetaData = $this->em->getMetadataFactory()->getMetadataFor($trackClass);
@@ -72,11 +71,7 @@ class EntityTrackListener
     private function handleEntity(TrackableInterface $entity, $action, $user)
     {
         $uow = $this->em->getUnitOfWork();
-        $trackEntity = $entity->getTrackEntity();
-        if ($trackEntity === null) {
-            return;
-        }
-        $trackClass = get_class($trackEntity).'Track';
+        $trackClass = $entity->getTrackClass();
         if ($action == TrackInterface::ACTION_UPDATE) {
             $changeset = $uow->getEntityChangeSet($entity);
             if (!is_array($changeset)) {

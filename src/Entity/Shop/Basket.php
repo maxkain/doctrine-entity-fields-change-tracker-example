@@ -50,13 +50,13 @@ class Basket implements TrackableInterface
     }
 
     /* ... */
-    
+
     /**
-     * @return TrackableInterface
+     * @return string
      */
-    public function getTrackEntity()
+    public function getTrackClass()
     {
-        return $this;
+        return get_class($this).'Track';
     }
         
 }
