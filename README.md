@@ -1,4 +1,4 @@
-This example shows how to log changes, creations and deletions of Basket entity and it's related BasketItem entites to another related BasketTrack entites.
+This example shows how to log changes, creations and deletions of Basket entity and it's related BasketItem entities to another related BasketTrack entities.
 
 0. Copy the `Service` and `EventListener` folders to your project. EventListener is the entrypoint. Add to your service.yaml:
 ```
