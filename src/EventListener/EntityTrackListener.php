@@ -35,8 +35,7 @@ class EntityTrackListener
 
     private function addTrack(TrackableInterface $entity, $action, $user, $changeFieldName = null, $changeFieldValues = [], $trackMetaData = null)
     {
-        $entityName = (new \ReflectionClass($entity))->getShortName();
-        $handler = $this->trackHandlers->get($entityName);
+        $handler = $this->trackHandlers->get(get_class($entity));
 
         if ($changeFieldName && !$handler->isUpdateTrackable($changeFieldName, $changeFieldValues[1])) {
             return false;
