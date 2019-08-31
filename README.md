@@ -20,5 +20,5 @@ imports:
 ```
 2. Create your `Basket` and `BasketItem` entities which implement `TrackableInterface`.
 3. Create `BasketTrack` entity which implements `TrackInterface` (`BasketTrack` - 'the name of tracking entity' with 'Track' suffix). 
-4. Edit `BasketTrackHandler` and `BasketItemTrackHandler` as you need. If you persist any entity, use `computeChangeSet` of the `UnitOfWork`.
+4. Edit `BasketTrackHandler`, `BasketItemTrackHandler` and `TrackHandlers` as you need. If you persist any entity, use `computeChangeSet` of the `UnitOfWork`.
 5. Use `getBasketTrackTitle` method of `BasketTrackHandler` to get track title.
