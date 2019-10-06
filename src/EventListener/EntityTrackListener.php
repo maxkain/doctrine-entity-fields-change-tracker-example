@@ -33,19 +33,17 @@ class EntityTrackListener
         $this->trackHandlers = $trackHandlers;
     }
 
-    private function addTrack(TrackableInterface $entity, $action, $user, $changeFieldName = null, $changeFieldValues = [], $trackMetaData = null)
+    private function addTrack(TrackableInterface $entity, $action, $user, $changeFieldName = null, $changeFieldValues = [])
     {
-        $handler = $this->trackHandlers->get(get_class($entity));
-
+        $entityClass = $this->em->getMetadataFactory()->getMetadataFor(get_class($entity))->getName();
+        $handler = $this->trackHandlers->get($entityClass);
         if ($changeFieldName && !$handler->isUpdateTrackable($changeFieldName, $changeFieldValues[1])) {
             return false;
         }
 
         $trackClass = $entity->getTrackClass();
         $uow = $this->em->getUnitOfWork();
-        if (!$trackMetaData) {
-            $trackMetaData = $this->em->getMetadataFactory()->getMetadataFor($trackClass);
-        }
+        $trackMetaData = $this->em->getMetadataFactory()->getMetadataFor($trackClass);
 
         /** @var $track TrackInterface  */
         $track = new $trackClass();
