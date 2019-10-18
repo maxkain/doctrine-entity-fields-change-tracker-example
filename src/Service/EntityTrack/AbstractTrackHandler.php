@@ -5,7 +5,8 @@ namespace App\Service\EntityTrack;
 
 use App\Service\EntityTrack\TrackInterface;
 use App\Service\EntityTrack\TrackHandlerInterface;
-use \App\Service\EntityTrack\TrackableInterface;
+use App\Service\EntityTrack\TrackableInterface;
+use Doctrine\ORM\EntityManagerInterface;
 
 abstract class AbstractTrackHandler implements TrackHandlerInterface
 {
@@ -46,4 +47,11 @@ abstract class AbstractTrackHandler implements TrackHandlerInterface
 
         return false;
     }
+
+    protected function save($entity, EntityManagerInterface $em)
+    {
+        $entityClass = $em->getMetadataFactory()->getMetadataFor(get_class($entity));
+        $em->getUnitOfWork()->computeChangeSet($entityClass, $entity);
+    }
+
 }
