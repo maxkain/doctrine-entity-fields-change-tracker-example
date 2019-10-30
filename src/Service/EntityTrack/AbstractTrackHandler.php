@@ -48,10 +48,4 @@ abstract class AbstractTrackHandler implements TrackHandlerInterface
         return false;
     }
 
-    protected function save($entity, EntityManagerInterface $em)
-    {
-        $entityClass = $em->getMetadataFactory()->getMetadataFor(get_class($entity));
-        $em->getUnitOfWork()->computeChangeSet($entityClass, $entity);
-    }
-
 }

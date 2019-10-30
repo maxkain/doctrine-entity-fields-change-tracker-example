@@ -33,17 +33,16 @@ class BasketItemTrackHandler extends AbstractTrackHandler
      */
     public function handle(TrackInterface $track, TrackableInterface $entity): bool
     {
-        $deletedEntities = $this->em->getUnitOfWork()->getScheduledEntityDeletions();
+        if (!$entity->getBasket() || !$entity->getBasket()->isInvoiced()) {
+            return false;
+        }
 
+        $deletedEntities = $this->em->getUnitOfWork()->getScheduledEntityDeletions();
         /** @var TrackableInterface $deletedEntity */
         foreach ($deletedEntities as $deletedEntity) {
             if ($deletedEntity instanceof Basket && $deletedEntity->getId() == $entity->getBasket()->getId()) {
                 return false;
             }
-        }
-
-        if (!$entity->getBasket()->isInvoiced()) {
-            return false;
         }
 
         if ($track->getAction() == TrackInterface::ACTION_INSERT) {
