@@ -4,6 +4,7 @@ namespace App\EventListener;
 
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Proxy\Proxy;
 use App\Service\EntityTrack\TrackInterface;
 use App\Service\EntityTrack\TrackableInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
@@ -33,7 +34,7 @@ class EntityTrackListener
         $this->trackHandlers = $trackHandlers;
     }
 
-    private function addTrack(TrackableInterface $entity, $action, $user, $changeFieldName = null, $changeFieldValues = [])
+    private function addTrack(TrackableInterface $entity, $action, $user, $changeFieldName = null, $changeFieldValues = [], $changeset = null)
     {
         $entityClass = $this->em->getMetadataFactory()->getMetadataFor(get_class($entity))->getName();
         $handler = $this->trackHandlers->get($entityClass);
@@ -56,7 +57,7 @@ class EntityTrackListener
             $track->setValueNew($changeFieldValues[1]);
         }
 
-        if ($handler->handle($track, $entity)) {
+        if ($handler->handle($track, $entity, $changeset)) {
             $uow->persist($track);
             $uow->computeChangeSet($trackMetaData, $track);
             return true;
@@ -68,15 +69,13 @@ class EntityTrackListener
     private function handleEntity(TrackableInterface $entity, $action, $user)
     {
         $uow = $this->em->getUnitOfWork();
-        $trackClass = $entity->getTrackClass();
         if ($action == TrackInterface::ACTION_UPDATE) {
             $changeset = $uow->getEntityChangeSet($entity);
             if (!is_array($changeset)) {
                 return;
             }
-            $trackMetaData = $this->em->getMetadataFactory()->getMetadataFor($trackClass);
             foreach ($changeset as $changeFieldName => $changeFieldValues) {
-                $this->addTrack($entity, $action, $user, $changeFieldName, $changeFieldValues, $trackMetaData);
+                $this->addTrack($entity, $action, $user, $changeFieldName, $changeFieldValues, $changeset);
             }
         } else {
             $this->addTrack($entity, $action, $user);

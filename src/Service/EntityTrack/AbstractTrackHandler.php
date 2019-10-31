@@ -16,8 +16,6 @@ abstract class AbstractTrackHandler implements TrackHandlerInterface
     protected $trackConfig;
 
 
-    abstract public function handle(TrackInterface $track, TrackableInterface $entity): bool;
-
     public function getTrackTitle(TrackInterface $track)
     {
         if ($track->getAction() == TrackInterface::ACTION_DELETE) {

@@ -19,8 +19,15 @@ interface TrackInterface
     public function getFieldName();
 
     public function setValueOld($value);
+    public function getValueOld();
+
+    public function setValueOldView($value);
+    public function getValueOldView();
 
     public function setValueNew($value);
     public function getValueNew();
+
+    public function setValueNewView($value);
+    public function getValueNewView();
 }
 

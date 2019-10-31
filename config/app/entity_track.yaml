@@ -5,6 +5,14 @@ parameters:
                 new:
                     title: 'Создание заказа'
                 update:
+                    location:
+                        title: 'Изменение местоположения'
+                    delivery:
+                        title: 'Изменение способа доставки'
+                    payment:
+                        title: 'Изменение способа оплаты'
+                    pickupPoint:
+                        title: 'Изменение пункта выдачи'
                     fio:
                         title: 'Изменение ФИО'
                     phone:

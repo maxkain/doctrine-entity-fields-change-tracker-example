@@ -13,9 +13,10 @@ interface TrackHandlerInterface
     /**
      * @param TrackInterface $track
      * @param TrackableInterface $entity
+     * @param array $changeset
      * @return bool Persist track or not
      */
-    public function handle(TrackInterface $track, TrackableInterface $entity) : bool;
+    public function handle(TrackInterface $track, TrackableInterface $entity, $changeset) : bool;
 
     /**
      * @param $fieldName mixed

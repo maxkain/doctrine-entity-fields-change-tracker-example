@@ -29,9 +29,10 @@ class BasketItemTrackHandler extends AbstractTrackHandler
     /**
      * @param BasketTrack|TrackInterface $track
      * @param BasketItem|TrackableInterface $entity
+     * @param array $changeset
      * @return bool
      */
-    public function handle(TrackInterface $track, TrackableInterface $entity): bool
+    public function handle(TrackInterface $track, TrackableInterface $entity, $changeset): bool
     {
         if (!$entity->getBasket() || !$entity->getBasket()->isInvoiced()) {
             return false;

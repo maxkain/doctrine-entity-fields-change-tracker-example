@@ -138,12 +138,22 @@ trait EntityTrackTrait
         $this->valueOldView = $this->toValueView($value);
     }
 
+    public function setValueOldView($value)
+    {
+        $this->valueOldView = $value;
+    }
+
     public function setValueNew($value)
     {
         $this->valueNew = $this->toValue($value);
         $this->valueNewView = $this->toValueView($value);
     }
-    
+
+    public function setValueNewView($value)
+    {
+        $this->valueNewView = $value;
+    }
+
     public function getValueOldView()
     {
         return $this->valueOldView;
