@@ -63,7 +63,7 @@ class BasketTrackHandler extends AbstractTrackHandler
             if ($track->getFieldName() == 'pickupPoint') {
                 $deliveryOld = $entity->getDelivery();
                 $deliveryNew = $entity->getDelivery();
-                if ($changeset['delivery']) {
+                if (isset($changeset['delivery'])) {
                     $deliveryOld = $changeset['delivery'][0];
                     $deliveryNew = $changeset['delivery'][1];
                 }
