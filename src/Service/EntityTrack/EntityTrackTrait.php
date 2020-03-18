@@ -109,7 +109,11 @@ trait EntityTrackTrait
     private function toValue($value)
     {
         if (is_object($value)) {
-            return $value->getId();
+            if ($value instanceof \DateTime) {
+                return Helper::dateFormat($value, 'long');
+            } else {
+                return $value->getId();
+            }
         } else {
             return $value;
         }
@@ -118,15 +122,15 @@ trait EntityTrackTrait
     private function toValueView($value)
     {
         if (is_object($value)) {
-            if (is_callable([$value, 'getValueForTrack'])) {
+            if ($value instanceof \DateTime) {
+                return Helper::dateFormat($value, 'long');
+            } else if (is_callable([$value, 'getValueForTrack'])) {
                 return $value->getValueForTrack();
             } else {
                 return (string) $value;
             }
         } else if (is_bool($value)) {
             return $value ? 'Да' : 'Нет';
-        } else if ($value instanceof \DateTime) {
-            return Helper::dateFormat($value, 'long');
         } else {
             return $value;
         }
